@@ -1,3 +1,3 @@
 ### What is this?
 
-Repo of TamperMonkeyScripts I personally use for my daily working needs.
+Storage of Tamper[Violent/Grease/...]Monkey scripts I personally use for my daily needs.
