@@ -56,7 +56,7 @@ const SETTINGS = {
         // Create task button.
         if (taskId) {
             const taskButton = document.createElement('a');
-            taskButton.href = `https://www.odoo.com/web#id=${taskId}&cids=1&menu_id=4720&action=333&active_id=1695&model=project.task&view_type=form`;
+            taskButton.href = `https://www.odoo.com/web#id=${taskId}&cids=1&menu_id=4720&action=333&active_id=974&model=project.task&view_type=form`;
             taskButton.style.marginLeft = '4px';
             taskButton.innerHTML = SETTINGS.icons.task;
             buttons.push(taskButton);
