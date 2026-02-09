@@ -36,37 +36,41 @@ const SETTINGS = {
         }
     });
     // Add the buttons.
-    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck';
+    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck, .prc-PageHeader-Description-w-ejP';
     waitForKeyElements(headerSelector, header => {
         const buttons = []
         // Strip the origin from the head ref.
-        let branch = header.querySelector('.head-ref').innerText;
+        let branch = header.querySelector('.prc-BranchName-BranchName-CMTaU').innerText;
         if (branch.includes(':')) {
             [, branch] = branch.split(':');
         }
         // Update clipboard button to use branch name instead of head ref.
-        const clipboardButton = header.querySelector('clipboard-copy');
+        const clipboardButton = header.querySelector('.prc-Button-ButtonBase-9n-Xk');
         clipboardButton.value = branch;
         // Create runbot button.
         const runbotButton = document.createElement('a');
         runbotButton.href = `https://runbot.odoo.com/runbot/r-d-1?search=${branch}`;
-        runbotButton.style.marginLeft = '3px';
         runbotButton.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-beaker"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"></path></svg>';
         buttons.push(runbotButton);
         // Create task button.
         if (taskId) {
             const taskButton = document.createElement('a');
             taskButton.href = `https://www.odoo.com/web#id=${taskId}&cids=1&menu_id=4720&action=333&active_id=974&model=project.task&view_type=form`;
-            taskButton.style.marginLeft = '4px';
             taskButton.innerHTML = SETTINGS.icons.task;
             buttons.push(taskButton);
         }
         // Configure and insert the buttons.
+        const clipboardButtonStyle = getComputedStyle(clipboardButton);
         for (const button of buttons) {
             button.target = SETTINGS.target;
             button.classList.add('Link--onHover');
             button.classList.add('color-fg-muted');
-            clipboardButton.closest('span')?.after(button);
+            button.style.height = clipboardButtonStyle.height;
+            button.style.width = clipboardButtonStyle.width;
+            button.style.display = "flex";
+            button.style.alignItems = "center";
+            button.style.justifyContent = "center";
+            clipboardButton?.after(button);
         }
     });
 })();
