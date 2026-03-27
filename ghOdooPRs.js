@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.4
 // @description  Improve GitHub Odoo PR by adding links and buttons to useful features like Odoo Tasks and Runbot.
-// @author       AGE & DMO
+// @author       Serhii
 // @match        https://github.com/odoo*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.com
 // @grant        none
@@ -40,13 +40,15 @@ const SETTINGS = {
     waitForKeyElements(headerSelector, header => {
         const buttons = []
         // Strip the origin from the head ref.
-        let branch = header.querySelector('.prc-BranchName-BranchName-CMTaU').innerText;
+        let branch = header.querySelectorAll('.prc-BranchName-BranchName-CMTaU')[1].innerText;
         if (branch.includes(':')) {
             [, branch] = branch.split(':');
         }
         // Update clipboard button to use branch name instead of head ref.
         const clipboardButton = header.querySelector('.prc-Button-ButtonBase-9n-Xk');
-        clipboardButton.value = branch;
+        clipboardButton.addEventListener("click", (ev) => {
+            requestAnimationFrame(() => (navigator.clipboard.writeText(branch)));
+        });
         // Create runbot button.
         const runbotButton = document.createElement('a');
         runbotButton.href = `https://runbot.odoo.com/runbot/r-d-1?search=${branch}`;
