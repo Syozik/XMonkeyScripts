@@ -16,11 +16,19 @@
     const loginButton = document.querySelector(".oe_login_buttons > .btn-primary");
     const loginEl = document.querySelector(".oe_login_form #login");
     const passwordEl = document.querySelector(".oe_login_form #password");
+    loginEl.focus();
     loginButton.addEventListener("click", (ev) => {
         if (loginEl.value || passwordEl.value) {
             return;
         }
         loginEl.value = "admin";
         passwordEl.value = "admin";
+    });
+    document.addEventListener("keydown", (ev) => {
+        if (ev.ctrlKey && ev.code==="Enter") {
+            loginEl.value = "";
+            passwordEl.value = "";
+            loginButton.click();
+        }
     });
 })();
