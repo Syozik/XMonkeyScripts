@@ -37,16 +37,16 @@ const SETTINGS = {
         }
     });
     // Add the buttons.
-    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck, .prc-PageHeader-Description-w-ejP';
+    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck, [class*=" PullRequestHeaderSummary"]';
     waitForKeyElements(headerSelector, header => {
         const buttons = []
         // Strip the origin from the head ref.
-        let branch = header.querySelectorAll('.prc-BranchName-BranchName-CMTaU')[1].innerText;
+        let branch = header.querySelectorAll('[class*=" prc-BranchName"]')[1].innerText;
         if (branch.includes(':')) {
             [, branch] = branch.split(':');
         }
         // Update clipboard button to use branch name instead of head ref.
-        const clipboardButton = header.querySelector('.prc-Button-ButtonBase-9n-Xk');
+        const clipboardButton = header.querySelector("[class^='prc-Button'], [class*=' prc-Button']");
         clipboardButton.addEventListener("click", (ev) => {
             requestAnimationFrame(() => (navigator.clipboard.writeText(branch)));
         });
