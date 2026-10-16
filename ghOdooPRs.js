@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub Odoo PR
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.4.1
 // @description  Improve GitHub Odoo PR by adding links and buttons to useful features like Odoo Tasks and Runbot.
 // @author       Serhii
 // @match        https://github.com/odoo*
@@ -37,7 +37,7 @@ const SETTINGS = {
         }
     });
     // Add the buttons.
-    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck, [class*=" PullRequestHeaderSummary"]';
+    const headerSelector = '.gh-header-meta, .gh-header-sticky.is-stuck, [class*="PageHeader-Description"], [class*=" PullRequestHeaderSummary"]';
     waitForKeyElements(headerSelector, header => {
         const buttons = []
         // Strip the origin from the head ref.
