@@ -1,24 +1,38 @@
 // ==UserScript==
 // @name         GitHub Odoo PR
 // @namespace    http://tampermonkey.net/
-// @version      1.4.1
+// @version      1.5
 // @description  Improve GitHub Odoo PR by adding links and buttons to useful features like Odoo Tasks and Runbot.
-// @author       Serhii
+// @author       Syozik
 // @match        https://github.com/odoo*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.com
-// @grant        none
 // @require      https://gist.githubusercontent.com/Zynton/2262dc9133523dceeb6cc4487e424b8d/raw/bac2744c81c969b0ca0445039797bf1a5bb39148/waitForKeyElements.js
-// @downloadURL  https://gist.github.com/dmo-odoo/ccf2f248e3a7e95f13750931dfe2e000/raw/tampermonkey_odoo.js
-// @updateURL    https://gist.github.com/dmo-odoo/ccf2f248e3a7e95f13750931dfe2e000
+// @downloadURL  https://raw.githubusercontent.com/Syozik/XMonkeyScripts/refs/heads/master/ghOdooPRs.js
+// @updateURL    https://raw.githubusercontent.com/Syozik/XMonkeyScripts/refs/heads/master/ghOdooPRs.js
+// @resource     runbotImg https://runbot.odoo.com/runbot/static/src/img/icon_ok.png
+// @grant        GM_getResourceURL
 // ==/UserScript==
 /* global waitForKeyElements */
 
+const logo = GM_getResourceURL("runbotImg");
+
 const SETTINGS = {
-    target: '_blank',
-    style: 'color: inherit;text-decoration: inherit',
+    target: "_blank",
+    style: "color: inherit;text-decoration: inherit",
     icons: {
         task: '<svg aria-hidden="true" height="16" width="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" data-view-component="true"><circle cx="8" cy="8" r="6" stroke="#714B67" stroke-width="2.5"/></svg>',
-        runbot: '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-beaker"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"></path></svg>',
+        runbot: `<img src="${logo}" alt="runbot logo" height="16" width="16"/>`,
+    },
+};
+
+const keys = {
+    task: {
+        regex: /(?:task\s*(?:id)?|opw)[-:]\s*(\d+)/gi,
+        getHref: (id) => `https://www.odoo.com/web#id=${id}&cids=1&menu_id=4720&action=333&active_id=974&model=project.task&view_type=form`,
+    },
+    runbot: {
+        regex: /(?:runbot|error)[-:]\s*(\d+)/gi,
+        getHref: (id) => `https://runbot.odoo.com/odoo/error/${id}`, 
     },
 };
 
@@ -26,14 +40,16 @@ const SETTINGS = {
 (function() {
     'use strict';
     // Get task IDs and turn them into links.
-    let taskId;
+    const ids = {};
     const taskIDSelector = '.comment p, .comment h1, .comment h2, .comment h3, .comment h4, .comment h5, .comment h6, .comment li, .commit-desc > pre';
-    waitForKeyElements(taskIDSelector, el => {
-        const matches = el.innerHTML.matchAll(/(?:task\s*(?:id)?|opw)[-:]\s*(\d+)/gi);
-        for (const [match, id] of matches) {
-            taskId ||= id;
-            const link = `<a href="https://www.odoo.com/web#id=${id}&cids=1&menu_id=4720&action=333&active_id=1695&model=project.task&view_type=form" target=${SETTINGS.target} style="${SETTINGS.style}"}>${match}</a>`;
-            el.innerHTML = el.innerHTML.replace(match, link);
+    waitForKeyElements(taskIDSelector, (el) => {
+        for (const key of Object.keys(keys)) {
+            const matches = el.innerHTML.matchAll(keys[key].regex);
+            for (const [match, id] of matches) {
+                ids[key] = id;
+                const link = `<a href="${keys[key].getHref(id)}" target=${SETTINGS.target} style="${SETTINGS.style}">${match}</a>`;
+                el.innerHTML = el.innerHTML.replace(match, link);
+            }
         }
     });
     // Add the buttons.
@@ -47,7 +63,7 @@ const SETTINGS = {
         }
         // Update clipboard button to use branch name instead of head ref.
         const clipboardButton = header.querySelector("[class^='prc-Button'], [class*=' prc-Button']");
-        clipboardButton.addEventListener("click", (ev) => {
+        clipboardButton.addEventListener("click", () => {
             requestAnimationFrame(() => (navigator.clipboard.writeText(branch)));
         });
         // Create runbot button.
@@ -56,11 +72,13 @@ const SETTINGS = {
         runbotButton.innerHTML = SETTINGS.icons.runbot;
         buttons.push(runbotButton);
         // Create task button.
-        if (taskId) {
-            const taskButton = document.createElement('a');
-            taskButton.href = `https://www.odoo.com/web#id=${taskId}&cids=1&menu_id=4720&action=333&active_id=974&model=project.task&view_type=form`;
-            taskButton.innerHTML = SETTINGS.icons.task;
-            buttons.push(taskButton);
+        for (const key of Object.keys(keys)) {
+            if (ids[key]) {
+                const taskButton = document.createElement('a');
+                taskButton.href = keys[key].getHref(ids[key]);
+                taskButton.innerHTML = SETTINGS.icons[key];
+                buttons.push(taskButton);
+            }
         }
         // Configure and insert the buttons.
         const clipboardButtonStyle = getComputedStyle(clipboardButton);
